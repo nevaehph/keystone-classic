@@ -7,25 +7,27 @@ var templatePath = path.resolve(__dirname, "../templates/index.html");
 module.exports = function IndexRoute(req, res) {
 	var keystone = req.keystone;
 	var lists = {};
+	var stringified = JSON.stringify(keystone.nav);
+	var mininav = JSON.parse(stringified);
 	if (req.user.isSuperAdmin == false) {
-		for (var i = 0; i < keystone.nav.sections.length; i++) {
+		for (var i = 0; i < mininav.sections.length; i++) {
 			if (
-				keystone.nav.sections[i].key.includes("sendRenewalEmail") ||
-				keystone.nav.sections[i].key.includes("viewProjectContribution") ||
-				keystone.nav.sections[i].key.includes("generateMiscPayment") ||
-				keystone.nav.sections[i].key.includes("patrons") ||
-				keystone.nav.sections[i].key.includes("payment") ||
-				keystone.nav.sections[i].key.includes("viewEventRegistration") ||
-				keystone.nav.sections[i].key.includes("adminUsers")
+				mininav.sections[i].key.includes("sendRenewalEmail") ||
+				mininav.sections[i].key.includes("viewProjectContribution") ||
+				mininav.sections[i].key.includes("generateMiscPayment") ||
+				mininav.sections[i].key.includes("patrons") ||
+				mininav.sections[i].key.includes("payment") ||
+				mininav.sections[i].key.includes("viewEventRegistration") ||
+				mininav.sections[i].key.includes("adminUsers")
 			) {
-				keystone.nav.sections.splice(i, 1);
+				mininav.sections.splice(i, 1);
 				i--;
 			}
 
-			if (keystone.nav.sections[i].key.includes("events")) {
-				for (var a = 0; a < keystone.nav.sections[i].lists.length; a++) {
-					if (keystone.nav.sections[i].lists[a].key == "EventRegistration") {
-						keystone.nav.sections[i].lists.splice(a, 1);
+			if (mininav.sections[i].key.includes("events")) {
+				for (var a = 0; a < mininav.sections[i].lists.length; a++) {
+					if (mininav.sections[i].lists[a].key == "EventRegistration") {
+						mininav.sections[i].lists.splice(a, 1);
 					}
 				}
 			}
@@ -66,7 +68,7 @@ module.exports = function IndexRoute(req, res) {
 		csrf: { header: {} },
 		devMode: !!process.env.KEYSTONE_DEV,
 		lists: lists,
-		nav: keystone.nav,
+		nav: req.user.isSuperAdmin ? keystone.nav : mininav,
 		orphanedLists: orphanedLists,
 		signoutUrl: keystone.get("signout url"),
 		user: {
